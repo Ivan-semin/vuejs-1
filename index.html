@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Тестовое задание</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <!-- Fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css">
+
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+</head>
+<body>
+    <div class="container"  id="app">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <!--Heading -->
+                <nav class="navbar navbar-light bg-light mb-3 mt-3">
+                    <span class="navbar-brand mb-0 h1">Тестовое задание</span>
+                </nav>
+            </div>
+            <div class="col-md-4">
+                <!-- Navbar -->
+                <div class="list-group">
+                  <a href="#" class="list-group-item list-group-item-action" v-bind:class="{ active: departments_list }"  @click="departments_list = 1; employees_list = 0;">
+                    Department
+                  </a>
+                  <a href="#" class="list-group-item list-group-item-action" v-bind:class="{ active: employees_list }" @click="employees_list = 1; departments_list = 0;">
+                      Employee
+                  </a>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <template >
+                    <!-- List departments -->
+                    <template v-if="departments_list == 1">
+                        <table class="table table-bordered">
+                            <thead style="background:#eee;">
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>Description</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody >
+                                <tr v-for="(department, index) in departments">
+                                    <td>{{ index+1 }}</td>
+                                    <td>{{ department.name }}</td>
+                                    <td>{{ department.description }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-primary"
+                                                title="Просмотр"
+                                                @click="viewDepartment(index);">
+                                                    <i class="far fa-eye"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-success"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Редактирование"
+                                                @click="editDepartment(index);">
+                                                    <i class="far fa-edit"></i>
+                                        </button>
+                                        <button type="button"
+                                                data-toggle="tooltip"
+                                                data-placement="top"
+                                                title="Удалить"
+                                                @click="deleteDepartment(index)"
+                                                class="btn btn-danger">
+                                                    <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-success" @click="departments_list = 4" >
+                            Добавить отдел
+                        </button>
+                    </template>
+                    <!-- View department -->
+                    <template v-else-if="departments_list == 2">
+                        <h2>Страница отдела {{ departments[departmentView].name }}</h2>
+                        <p> <b>Название:</b> {{ departments[departmentView].name }} </p>
+                        <p> <b>Описание:</b> {{ departments[departmentView].description }} </p>
+                        <button type="button" class="btn btn-default" @click="departments_list = 1;">
+                          Назад
+                        </button>
+                    </template>
+                    <!-- Edit department -->
+                    <template v-else-if="departments_list == 3">
+                        <h2>Редактирование отдела {{ departments[departmentEdit].name }}</h2>
+                        <div class="row">
+                          <div class="col-md-6">
+                              <label>Название</label>
+                              <div class="form-group">
+                                  <input type="text" class="form-control" v-model="departments[departmentEdit].name">
+                              </div>
+                              <div class="form-group">
+                                  <label>Описание</label>
+                                  <input type="text" class="form-control" v-model="departments[departmentEdit].description">
+                              </div>
+                              <button type="button" class="btn btn-default" @click="departments_list = 1;">
+                                Назад
+                              </button>
+                          </div>
+                        </div>
+                    </template>
+                    <!-- Add department -->
+                    <template v-else-if="departments_list == 4">
+                        <div class="col-md-6">
+                            <h2>Страница добавления нового отдела</h2>
+                            <form class="form"  @submit='addDepartment();' action="javascript:void(null);">
+                                <div class="form-group">
+                                    <label>Название</label>
+                                    <input type="text" class="form-control" v-model="department_new.name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Описание</label>
+                                    <input type="text" class="form-control" v-model="department_new.description" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    Сохранить
+                                </button>
+                                <button type="button" class="btn btn-default" @click="departments_list = 1;">
+                                  Назад
+                                </button>
+                            </form>
+                        </div>
+                    </template>
+                </template>
+
+                <template>
+                    <!-- List employees -->
+                    <template  v-if="employees_list == 1">
+                        <table class="table table-bordered">
+                            <thead style="background:#eee;">
+                                <tr>
+                                    <td>#</td>
+                                    <td>Name</td>
+                                    <td>Department</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(employee, index) in employees">
+                                    <td>{{ index+1 }}</td>
+                                    <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+                                    <td>{{  getNameDepartment(employee.departmentId) }}</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-primary"
+                                                title="Просмотр"
+                                                @click="viewEmployee(index);">
+                                                    <i class="far fa-eye"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-success"
+                                                title="Редактирование"
+                                                @click="editEmployee(index);">
+                                                    <i class="far fa-edit"></i>
+                                        </button>
+                                        <button type="button"
+                                                title="Удалить"
+                                                class="btn btn-danger"
+                                                @click="deleteEmployee(index);">
+                                                    <i class="far fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button type="button" class="btn btn-success" @click="employees_list = 4" >
+                            Добавить нового работника
+                        </button>
+                    </template>
+                    <!-- View employee -->
+                    <template v-else-if="employees_list == 2">
+                        <h2>Страница работника - {{ employees[employeesView].firstName }} {{ employees[employeesView].lastName }}</h2>
+                        <p> <b>Имя:</b> {{ employees[employeesView].firstName }} {{ employees[employeesView].lastName }} </p>
+                        <p> <b>Отдел:</b> {{  departments[employees[employeesView].departmentId].name }} </p>
+                        <button type="button" class="btn btn-default" @click="employees_list = 1;">
+                          Назад
+                        </button>
+                    </template>
+                    <!-- Edit employee -->
+                    <template v-else-if="employees_list == 3">
+                        <h2> Страница радактирования информации о работнике - {{ employees[employeesEdit].firstName }} {{ employees[employeesEdit].lastName }}</h2>
+                        <div class="row">
+                          <div class="col-md-6">
+                              <div class="form-group">
+                                  <label>Имя</label>
+                                  <input type="text" class="form-control" v-model="employees[employeesEdit].firstName">
+                              </div>
+                              <div class="form-group">
+                                  <label>Фамилия</label>
+                                  <input type="text" class="form-control" v-model="employees[employeesEdit].lastName">
+                              </div>
+                              <div class="form-group">
+                                  <label>Отдел</label>
+                                  <select class="form-control" v-model="employees[employeesEdit].departmentId">
+                                      <option v-for="(department, index) in departments" v-bind:value="index">
+                                        {{ department.name }}
+                                      </option>
+                                  </select>
+                              </div>
+                              <button type="button" class="btn btn-default" @click="employees_list = 1;">
+                                Назад
+                              </button>
+                          </div>
+                        </div>
+                    </template>
+                    <!-- Add employee -->
+                    <template v-else-if="employees_list == 4">
+                        <div class="col-md-6">
+                            <h2>Страница добавления нового работника</h2>
+                            <form class="form"  @submit='addEmployee();' action="javascript:void(null);">
+                                <div class="form-group">
+                                    <label>Имя</label>
+                                    <input type="text" class="form-control" v-model="employee_new.firstName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Фамилия</label>
+                                    <input type="text" class="form-control" v-model="employee_new.lastName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Отдел</label>
+                                    <select class="form-control" v-model="employee_new.departmentId" required>
+                                        <option v-for="(department, index) in departments" v-bind:value="index">
+                                          {{ department.name }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    Сохранить
+                                </button>
+                                <button type="button" class="btn btn-default" @click="employees_list = 1;">
+                                    Назад
+                                </button>
+                            </form>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+
+    </div>
+    <script src="js/javascript.js" type="text/javascript"></script>
+</body>
+</html>
